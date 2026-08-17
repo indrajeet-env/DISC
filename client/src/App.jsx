@@ -8,15 +8,38 @@ import ShipmentTable from "./components/ShipmentTable";
 import AlertCard from "./components/AlertCard";
 import { DrugStatusChart, ShipmentStatusChart } from "./components/Charts";
 import { Activity, Pill, Package, Truck, AlertTriangle, ShieldCheck } from "lucide-react";
+import { authService } from "./services/authService";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 export default function App() {
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showSignup, setShowSignup] = useState(false);
+
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    authService.getSession().then((session) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = authService.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    
     const loadDashboard = async () => {
       try {
+        setLoading(true);
         const data = await getDashboard();
         setDashboard(data);
       } catch (err) {
@@ -27,7 +50,7 @@ export default function App() {
     };
 
     loadDashboard();
-  }, []);
+  }, [session]);
 
   const healthScore = useMemo(() => {
     if (!dashboard) return 100;
@@ -43,6 +66,21 @@ export default function App() {
     
     return Math.max(0, score);
   }, [dashboard]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center space-y-4">
+        <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    if (showSignup) {
+      return <Signup onNavigateLogin={() => setShowSignup(false)} />;
+    }
+    return <Login onNavigateSignup={() => setShowSignup(true)} />;
+  }
 
   if (loading) {
     return (
