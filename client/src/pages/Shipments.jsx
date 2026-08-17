@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   getShipments,
-  deleteShipment,
   getShipmentRequests,
   updateShipmentRequest,
 } from '../services/api';
@@ -14,13 +13,10 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
-  Trash2,
-  Edit2,
   ClipboardList,
   XCircle,
 } from 'lucide-react';
 import ShipmentDetailModal from '../components/Shipments/ShipmentDetailModal';
-import ShipmentFormModal from '../components/Shipments/ShipmentFormModal';
 import ShipmentRequestFormModal from '../components/Shipments/ShipmentRequestFormModal';
 
 const SHIPMENT_STATUSES = ['IN_TRANSIT', 'DELIVERED', 'DELAYED'];
@@ -54,9 +50,7 @@ export default function Shipments() {
   const [statusFilter, setStatusFilter] = useState('All');
 
   const [selectedShipment, setSelectedShipment] = useState(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isRequestOpen, setIsRequestOpen] = useState(false);
-  const [editingShipment, setEditingShipment] = useState(null);
 
   useEffect(() => {
     authService.getSession().then(async (session) => {
@@ -111,7 +105,16 @@ export default function Shipments() {
       if (shipment.status === 'DELAYED') statusPriority = 1;
       else if (shipment.status === 'IN_TRANSIT') statusPriority = 2;
 
-      return { ...shipment, statusPriority };
+      const expectedDate = new Date(shipment.expected_delivery);
+      // Ignore time part for fair comparison
+      expectedDate.setHours(23, 59, 59, 999);
+      const isPastExpected = new Date() > expectedDate && shipment.status !== 'DELIVERED';
+      
+      if (isPastExpected) {
+        statusPriority = 0; // Highest priority for attention
+      }
+
+      return { ...shipment, statusPriority, isPastExpected };
     });
   }, [shipments]);
 
@@ -175,18 +178,6 @@ export default function Shipments() {
     );
   }, [requests, search, statusFilter]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this shipment?')) {
-      try {
-        await deleteShipment(id);
-        fetchShipments();
-        if (selectedShipment?.id === id) setSelectedShipment(null);
-      } catch (err) {
-        alert('Failed to delete shipment: ' + err.message);
-      }
-    }
-  };
-
   const handleCancelRequest = async (id) => {
     if (window.confirm('Cancel this shipment request?')) {
       try {
@@ -196,11 +187,6 @@ export default function Shipments() {
         alert('Failed to cancel request: ' + err.message);
       }
     }
-  };
-
-  const openEditForm = (shipment) => {
-    setEditingShipment(shipment);
-    setIsEditOpen(true);
   };
 
   if (loading && shipments.length === 0 && requests.length === 0) {
@@ -373,14 +359,15 @@ export default function Shipments() {
                     <th className="px-6 py-4 font-semibold">Status</th>
                     <th className="px-6 py-4 font-semibold text-center">Temp (°C)</th>
                     <th className="px-6 py-4 font-semibold">Qty</th>
-                    <th className="px-6 py-4 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredShipments.map((shipment) => (
                     <tr
                       key={shipment.id}
-                      className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                      className={`transition-colors cursor-pointer group ${
+                        shipment.isPastExpected ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-slate-50/50'
+                      }`}
                       onClick={() => setSelectedShipment(shipment)}
                     >
                       <td className="px-6 py-4">
@@ -421,26 +408,6 @@ export default function Shipments() {
                             Exp: {shipment.expected_quantity}
                           </span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openEditForm(shipment);
-                          }}
-                          className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(shipment.id);
-                          }}
-                          className="p-2 text-slate-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </td>
                     </tr>
                   ))}
@@ -512,21 +479,6 @@ export default function Shipments() {
         <ShipmentDetailModal
           shipment={selectedShipment}
           onClose={() => setSelectedShipment(null)}
-          onRefresh={() => {
-            fetchShipments();
-            setSelectedShipment(null);
-          }}
-        />
-      )}
-
-      {isEditOpen && editingShipment && (
-        <ShipmentFormModal
-          shipment={editingShipment}
-          onClose={() => setIsEditOpen(false)}
-          onSuccess={() => {
-            setIsEditOpen(false);
-            fetchShipments();
-          }}
         />
       )}
 

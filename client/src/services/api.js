@@ -155,3 +155,17 @@ export const updateShipmentRequest = async (id, requestData) => {
   const data = await response.json();
   return data.data;
 };
+
+export const askProcurementAssistant = async (message, accessToken) => {
+  const response = await fetch(`${API_BASE}/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ message }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || 'Unable to reach the procurement assistant.');
+  return data.data.answer;
+};

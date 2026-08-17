@@ -6,6 +6,7 @@ import drugRoutes from "./routes/drugRoutes.js";
 import shipmentRoutes from "./routes/shipmentRoutes.js";
 import shipmentRequestRoutes from "./routes/shipmentRequestRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use("/api/drugs", drugRoutes);
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/shipment-requests", shipmentRequestRoutes);
 app.use("/api/vendors", vendorRoutes);
+app.use("/api/chat", chatRoutes);
 
 export default app;

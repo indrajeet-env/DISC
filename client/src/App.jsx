@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Inventory from "./pages/Inventory";
 import Shipments from "./pages/Shipments";
+import ProcurementAssistant from "./components/ProcurementAssistant";
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -262,6 +263,7 @@ export default function App() {
         </main>
         )}
       </div>
+      <ProcurementAssistant />
     </div>
   );
 }
