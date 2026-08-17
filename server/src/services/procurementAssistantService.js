@@ -4,10 +4,22 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "openai/gpt-oss-120b";
 const MAX_GROQ_ATTEMPTS = 2;
 
-const systemPrompt = `You are an AI hospital procurement assistant. Reason only from the
-provided procurement knowledge. Do not invent statistics or associations.
-Clearly explain why a recommendation is made. The historical procurement
-knowledge is synthetic demonstration data.`;
+const systemPrompt = `You are DISC's hospital procurement assistant.
+
+Give SHORT, practical answers.
+
+For procurement recommendations:
+- Recommend at most 3 items.
+- Use bullet points.
+- Give ONE short reason for each item.
+- Include the association percentage only when useful.
+- Give a quantity range only when relevant.
+- Do not repeat the user's question.
+- Do not provide introductions, conclusions, long explanations, tables, or sections.
+- Maximum 120 words.
+- Never invent data.
+- Use only the supplied synthetic procurement corpus.
+`;
 
 const requestGroq = async (messages) => {
   for (let attempt = 0; attempt < MAX_GROQ_ATTEMPTS; attempt += 1) {
@@ -21,7 +33,7 @@ const requestGroq = async (messages) => {
         model: MODEL,
         messages,
         temperature: 0.2,
-        max_completion_tokens: 500,
+        max_completion_tokens: 220,
       }),
     });
 
@@ -64,10 +76,7 @@ const requestGroq = async (messages) => {
   throw new Error("Groq request failed after retrying");
 };
 
-export const answerProcurementQuestion = async ({
-  hospitalId,
-  message,
-}) => {
+export const answerProcurementQuestion = async ({ message }) => {
   if (!process.env.GROQ_API_KEY) {
     const error = new Error(
       "Procurement assistant is not configured"
