@@ -12,6 +12,7 @@ import { authService } from "./services/authService";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Inventory from "./pages/Inventory";
+import Shipments from "./pages/Shipments";
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -116,6 +117,8 @@ export default function App() {
 
         {activeView === 'inventory' ? (
           <Inventory />
+        ) : activeView === 'shipments' ? (
+          <Shipments />
         ) : (
         <main className="flex-1 p-8 overflow-y-auto">
           {/* SECTION 1 - OVERVIEW CARDS */}

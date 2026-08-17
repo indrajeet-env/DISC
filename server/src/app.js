@@ -3,6 +3,9 @@ import cors from "cors";
 
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import drugRoutes from "./routes/drugRoutes.js";
+import shipmentRoutes from "./routes/shipmentRoutes.js";
+import shipmentRequestRoutes from "./routes/shipmentRequestRoutes.js";
+import vendorRoutes from "./routes/vendorRoutes.js";
 
 const app = express();
 
@@ -17,5 +20,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/drugs", drugRoutes);
+app.use("/api/shipments", shipmentRoutes);
+app.use("/api/shipment-requests", shipmentRequestRoutes);
+app.use("/api/vendors", vendorRoutes);
 
 export default app;
