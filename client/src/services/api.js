@@ -13,6 +13,21 @@ export const getDashboard = async () => {
 
 const API_BASE = 'http://localhost:5050/api';
 
+export const getDashboardData = async () => {
+  const response = await fetch(`${API_BASE}/dashboard`);
+  if (!response.ok) throw new Error('Failed to fetch dashboard data');
+  const data = await response.json();
+  return data.data;
+};
+
+export const getAlerts = async () => {
+  const response = await fetch(`${API_BASE}/alerts`);
+  if (!response.ok) throw new Error('Failed to fetch alerts');
+  const data = await response.json();
+  return data.data;
+};
+
+// Drugs API
 export const getDrugs = async () => {
   const response = await fetch(`${API_BASE}/drugs`);
   if (!response.ok) throw new Error('Failed to fetch drugs');
@@ -106,6 +121,7 @@ export const deleteShipment = async (id) => {
 };
 
 // Vendors API
+
 export const getVendors = async () => {
   const response = await fetch(`${API_BASE}/vendors`);
   if (!response.ok) throw new Error('Failed to fetch vendors');
@@ -156,14 +172,14 @@ export const updateShipmentRequest = async (id, requestData) => {
   return data.data;
 };
 
-export const askProcurementAssistant = async (message, accessToken) => {
+export const askProcurementAssistant = async (message, accessToken, history = []) => {
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, history }),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.message || 'Unable to reach the procurement assistant.');

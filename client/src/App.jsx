@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { getDashboard } from "./services/api";
+import { getDashboard, getAlerts } from "./services/api";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import StatCard from "./components/StatCard";
@@ -13,7 +13,9 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Inventory from "./pages/Inventory";
 import Shipments from "./pages/Shipments";
+import Alerts from "./pages/Alerts";
 import ProcurementAssistant from "./components/ProcurementAssistant";
+import AlertPopup from "./components/AlertPopup";
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -22,6 +24,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
 
   const [dashboard, setDashboard] = useState(null);
+  const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -46,6 +49,13 @@ export default function App() {
         setLoading(true);
         const data = await getDashboard();
         setDashboard(data);
+        
+        try {
+          const alertsData = await getAlerts();
+          setAlerts(alertsData);
+        } catch (e) {
+          console.error("Failed to load alerts:", e);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -111,7 +121,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <Sidebar activeTab={activeView} onTabChange={setActiveView} />
+      <AlertPopup alerts={alerts} />
+      <Sidebar activeTab={activeView} onTabChange={setActiveView} alertCount={alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'WARNING').length} />
       
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
@@ -120,6 +131,8 @@ export default function App() {
           <Inventory />
         ) : activeView === 'shipments' ? (
           <Shipments />
+        ) : activeView === 'alerts' ? (
+          <Alerts alerts={alerts} />
         ) : (
         <main className="flex-1 p-8 overflow-y-auto">
           {/* SECTION 1 - OVERVIEW CARDS */}
