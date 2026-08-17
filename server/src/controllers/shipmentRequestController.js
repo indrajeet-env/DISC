@@ -63,11 +63,18 @@ export const createShipmentRequest = async (req, res) => {
       data: newRequest,
     });
   } catch (error) {
-    console.error("Create shipment request error:", error);
+    console.error("CREATE SHIPMENT REQUEST ERROR:", error);
+    console.error("MESSAGE:", error.message);
+    console.error("DETAILS:", error.details);
+    console.error("HINT:", error.hint);
+    console.error("CODE:", error.code);
+
     res.status(500).json({
       success: false,
-      message: "Failed to create shipment request",
-      error: error.message,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code
     });
   }
 };

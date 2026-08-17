@@ -64,6 +64,8 @@ export const createShipmentRequest = async (requestData) => {
   payload.status = "REQUESTED";
   payload.requested_at = payload.requested_at || new Date().toISOString();
 
+console.log("SHIPMENT REQUEST PAYLOAD:", payload);
+
   const { data, error } = await supabase
     .from("shipment_requests")
     .insert([payload])
