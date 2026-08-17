@@ -11,7 +11,7 @@ export const getDashboard = async () => {
   }
 };
 
-const API_BASE = 'http://localhost:5050/api';
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5050";
 
 export const getDashboardData = async () => {
   const response = await fetch(`${API_BASE}/dashboard`);
