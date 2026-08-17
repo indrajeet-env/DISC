@@ -11,11 +11,13 @@ import { Activity, Pill, Package, Truck, AlertTriangle, ShieldCheck } from "luci
 import { authService } from "./services/authService";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Inventory from "./pages/Inventory";
 
 export default function App() {
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showSignup, setShowSignup] = useState(false);
+  const [activeView, setActiveView] = useState('dashboard');
 
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -107,11 +109,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <Sidebar />
+      <Sidebar activeTab={activeView} onTabChange={setActiveView} />
       
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
 
+        {activeView === 'inventory' ? (
+          <Inventory />
+        ) : (
         <main className="flex-1 p-8 overflow-y-auto">
           {/* SECTION 1 - OVERVIEW CARDS */}
           <section className="mb-8">
@@ -252,6 +257,7 @@ export default function App() {
             
           </div>
         </main>
+        )}
       </div>
     </div>
   );
