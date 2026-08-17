@@ -45,26 +45,46 @@ const compactRequest = (request) => ({
   acknowledged_at: request.acknowledged_at,
 });
 
+import { createClient } from "@supabase/supabase-js";
+
 export const getHospitalForAccessToken = async (accessToken) => {
   const { data: authData, error: authError } = await supabase.auth.getUser(accessToken);
-  if (authError || !authData.user) {
+  
+  if (authError || !authData?.user) {
+    console.log("[DEBUG] getHospitalForAccessToken - authError or no user:", authError);
     const error = new Error("Invalid or expired session");
     error.status = 401;
     throw error;
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const userId = authData.user.id;
+  console.log("[DEBUG] getHospitalForAccessToken - Auth user extracted:", authData.user);
+
+  // Note: The user requested using SUPABASE_SECRET_KEY, but the service_role literally lacks
+  // the 'GRANT SELECT' permission on the profiles table, resulting in 'permission denied'.
+  // Since we cannot modify the database schema/grants, we MUST use the authenticated client (anon key + JWT) 
+  // which does have the grant and can read its own profile.
+  const authSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+
+  const { data: profile, error: profileError } = await authSupabase
     .from("profiles")
     .select("hospital_id")
-    .eq("id", authData.user.id)
+    .eq("id", userId)
     .single();
 
+  console.log("[DEBUG] getHospitalForAccessToken - Profile lookup result:", { profile, error: profileError });
+
   if (profileError || !profile?.hospital_id) {
+    console.log("[DEBUG] getHospitalForAccessToken - hospital_id missing or error.");
     const error = new Error("Your account is not assigned to a hospital");
     error.status = 403;
     throw error;
   }
 
+  console.log("[DEBUG] getHospitalForAccessToken - successfully returning hospital_id:", profile.hospital_id);
   return profile.hospital_id;
 };
 
