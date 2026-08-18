@@ -7,7 +7,11 @@ import {
 
 export const getShipmentRequests = async (req, res) => {
   try {
-    const requests = await getAllShipmentRequests();
+    let vendorId = null;
+    if (req.user && req.user.role === 'VENDOR') {
+      vendorId = req.user.vendor_id;
+    }
+    const requests = await getAllShipmentRequests(vendorId);
     res.json({
       success: true,
       count: requests.length,
@@ -81,12 +85,23 @@ export const createShipmentRequest = async (req, res) => {
 
 export const updateShipmentRequest = async (req, res) => {
   try {
-    const allowedStatuses = ["REQUESTED", "ACKNOWLEDGED", "REJECTED", "CANCELLED"];
+    const allowedStatuses = ["REQUESTED", "ACKNOWLEDGED", "REJECTED", "CANCELLED", "SHIPPED", "DELIVERED"];
     if (req.body.status && !allowedStatuses.includes(req.body.status)) {
       return res.status(400).json({
         success: false,
         message: `Invalid status. Must be one of: ${allowedStatuses.join(", ")}`,
       });
+    }
+    
+    // Check ownership if vendor
+    if (req.user && req.user.role === 'VENDOR') {
+      const existingRequest = await getShipmentRequestById(req.params.id);
+      if (existingRequest.vendor_id !== req.user.vendor_id) {
+        return res.status(403).json({
+          success: false,
+          message: "You do not have permission to update this request",
+        });
+      }
     }
 
     const updatedRequest = await updateShipmentRequestService(req.params.id, req.body);

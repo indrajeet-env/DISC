@@ -141,16 +141,28 @@ export const getVendor = async (id) => {
 
 // Shipment Requests API
 export const getShipmentRequests = async () => {
-  const response = await fetch(`${API_BASE}/shipment-requests`);
+  const { authService } = await import("./authService");
+  const session = await authService.getSession();
+  const headers = {};
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+  const response = await fetch(`${API_BASE}/shipment-requests`, { headers });
   if (!response.ok) throw new Error('Failed to fetch shipment requests');
   const data = await response.json();
   return data.data;
 };
 
 export const createShipmentRequest = async (requestData) => {
+  const { authService } = await import("./authService");
+  const session = await authService.getSession();
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
   const response = await fetch(`${API_BASE}/shipment-requests`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(requestData),
   });
   if (!response.ok) {
@@ -162,9 +174,15 @@ export const createShipmentRequest = async (requestData) => {
 };
 
 export const updateShipmentRequest = async (id, requestData) => {
+  const { authService } = await import("./authService");
+  const session = await authService.getSession();
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
   const response = await fetch(`${API_BASE}/shipment-requests/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(requestData),
   });
   if (!response.ok) {

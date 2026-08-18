@@ -1,4 +1,5 @@
 import supabase from "../config/supabase.js";
+import { createShipment } from "./shipmentService.js";
 
 const REQUEST_COLUMNS = [
   "hospital_id",
@@ -38,11 +39,17 @@ const REQUEST_SELECT = `
   hospitals ( name )
 `;
 
-export const getAllShipmentRequests = async () => {
-  const { data, error } = await supabase
+export const getAllShipmentRequests = async (vendorId = null) => {
+  let query = supabase
     .from("shipment_requests")
     .select(REQUEST_SELECT)
     .order("requested_at", { ascending: false });
+
+  if (vendorId) {
+    query = query.eq("vendor_id", vendorId);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data.map(flattenRequest);
@@ -91,5 +98,24 @@ export const updateShipmentRequest = async (id, requestData) => {
     .single();
 
   if (error) throw error;
-  return flattenRequest(data);
+  const flattened = flattenRequest(data);
+
+  // If status is ACKNOWLEDGED, create a corresponding shipment for the hospital
+  if (payload.status === "ACKNOWLEDGED") {
+    try {
+      await createShipment({
+        drug_id: flattened.drug_id,
+        vendor_id: flattened.vendor_id,
+        hospital_id: flattened.hospital_id,
+        quantity: flattened.requested_quantity,
+        expected_quantity: flattened.requested_quantity,
+        status: "IN_TRANSIT",
+        expected_delivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // +3 days
+      });
+    } catch (e) {
+      console.error("Failed to create shipment upon acknowledgement:", e);
+    }
+  }
+
+  return flattened;
 };

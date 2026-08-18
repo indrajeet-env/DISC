@@ -6,12 +6,13 @@ import {
   createShipmentRequest,
   updateShipmentRequest,
 } from "../controllers/shipmentRequestController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getShipmentRequests);
-router.post("/", createShipmentRequest);
-router.get("/:id", getShipmentRequest);
-router.patch("/:id", updateShipmentRequest);
+router.get("/", authMiddleware, getShipmentRequests);
+router.post("/", authMiddleware, createShipmentRequest);
+router.get("/:id", authMiddleware, getShipmentRequest);
+router.patch("/:id", authMiddleware, updateShipmentRequest);
 
 export default router;
