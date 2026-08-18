@@ -71,39 +71,60 @@ export const getAlerts = async (hospitalId) => {
     const classifier = trainMLModel(drugs);
 
     drugs.forEach((drug) => {
-      const stockRatio = drug.current_stock / (drug.minimum_stock || 1);
-      const dailyUsage = drug.average_daily_usage || 1;
-      const daysUntilStockout = dailyUsage > 0 ? drug.current_stock / dailyUsage : 100;
-      
-      // Predict using ML model
-      const prediction = predictStockRisk(classifier, drug);
-      
-      if (prediction === 2) {
-        const reorderQty = Math.ceil(drug.minimum_stock * (drug.lead_time_days ? drug.lead_time_days : 7) / 7);
-        alerts.push({
-          id: `stock-crit-${drug.id}`,
-          category: "AI Stock Alerts",
-          severity: "CRITICAL",
-          title: `Predicted Stockout Risk: ${drug.name}`,
-          description: `Current stock (${drug.current_stock} units) is critically low. Estimated stockout in ${Math.floor(daysUntilStockout)} days at current usage rate. Minimum threshold: ${drug.minimum_stock}.`,
-          recommendation: `Reorder ${reorderQty} units immediately. Lead time: ${drug.lead_time_days || 7} days.`,
-          date: new Date().toISOString(),
-          related_drug: drug.name,
-        });
-      } else if (prediction === 1) {
-        const reorderQty = Math.ceil(drug.minimum_stock * 1.5);
-        alerts.push({
-          id: `stock-warn-${drug.id}`,
-          category: "AI Stock Alerts",
-          severity: "WARNING",
-          title: `Low Stock Warning: ${drug.name}`,
-          description: `Current stock (${drug.current_stock} units) is approaching minimum threshold (${drug.minimum_stock}). Estimated stockout in ${Math.floor(daysUntilStockout)} days.`,
-          recommendation: `Consider reordering ${reorderQty} units to maintain safety buffer.`,
-          date: new Date().toISOString(),
-          related_drug: drug.name,
-        });
-      }
+  const stockRatio =
+    drug.current_stock / (drug.minimum_stock || 1);
+
+  const dailyUsage =
+    drug.average_daily_usage || 1;
+
+  const daysUntilStockout =
+    dailyUsage > 0
+      ? drug.current_stock / dailyUsage
+      : 100;
+
+  // Predict using ML model
+  const prediction = predictStockRisk(classifier, drug);
+
+  if (prediction === 2) {
+    const reorderQty = Math.ceil(
+      (drug.minimum_stock *
+        (drug.lead_time_days ? drug.lead_time_days : 7)) /
+        7
+    );
+
+    alerts.push({
+      id: `stock-crit-${drug.id}`,
+      category: "AI Stock Alerts",
+      severity: "CRITICAL",
+      title: `Predicted Stockout Risk: ${drug.name}`,
+
+      description: `Current stock (${drug.current_stock} units) is critically low. Minimum threshold: ${drug.minimum_stock}.`,
+
+      recommendation: `Reorder ${reorderQty} units immediately. Lead time: ${drug.lead_time_days || 7} days.`,
+
+      date: new Date().toISOString(),
+      related_drug: drug.name,
     });
+  } else if (prediction === 1) {
+    const reorderQty = Math.ceil(
+      drug.minimum_stock * 1.5
+    );
+
+    alerts.push({
+      id: `stock-warn-${drug.id}`,
+      category: "AI Stock Alerts",
+      severity: "WARNING",
+      title: `Low Stock Warning: ${drug.name}`,
+
+      description: `Current stock (${drug.current_stock} units) is approaching minimum threshold (${drug.minimum_stock}).`,
+
+      recommendation: `Consider reordering ${reorderQty} units to maintain safety buffer.`,
+
+      date: new Date().toISOString(),
+      related_drug: drug.name,
+    });
+  }
+});
 
     // Fetch Shipments
     let shipmentQuery = supabase.from("shipments").select(`

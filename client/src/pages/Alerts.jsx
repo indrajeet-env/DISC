@@ -114,54 +114,80 @@ export default function Alerts({ alerts = [] }) {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium mb-1">Total Alerts</p>
-                <p className="text-3xl font-bold text-slate-900">{stats.total}</p>
-              </div>
-              <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-red-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-red-600 text-sm font-medium mb-1">Critical</p>
-                <p className="text-3xl font-bold text-red-600">{stats.critical}</p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-yellow-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-yellow-600 text-sm font-medium mb-1">Warning</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.warning}</p>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-600 text-sm font-medium mb-1">Info</p>
-                <p className="text-3xl font-bold text-blue-600">{stats.info}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
-                <Info className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
+  {/* Total Alerts */}
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-slate-500 text-sm font-medium mb-1">
+            Total Alerts
+          </p>
+          <p className="text-3xl font-bold text-slate-900">
+            {stats.total}
+          </p>
         </div>
+
+        <div className="w-12 h-12 bg-slate-500 text-white rounded-lg flex items-center justify-center">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+
+    {/* Critical */}
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-red-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-red-600 text-sm font-medium mb-1">
+            Critical
+          </p>
+          <p className="text-3xl font-bold text-red-600">
+            {stats.critical}
+          </p>
+        </div>
+
+        <div className="w-12 h-12 bg-red-500 text-white rounded-lg flex items-center justify-center">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+
+    {/* Warning */}
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-yellow-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-yellow-600 text-sm font-medium mb-1">
+            Warning
+          </p>
+          <p className="text-3xl font-bold text-yellow-600">
+            {stats.warning}
+          </p>
+        </div>
+
+        <div className="w-12 h-12 bg-yellow-500 text-white rounded-lg flex items-center justify-center">
+          <AlertTriangle className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+
+    {/* Info */}
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-blue-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-blue-600 text-sm font-medium mb-1">
+            Info
+          </p>
+          <p className="text-3xl font-bold text-blue-600">
+            {stats.info}
+          </p>
+        </div>
+
+        <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center">
+          <Info className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+
+  </div>
 
         {/* Filters and Search */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
@@ -244,10 +270,10 @@ export default function Alerts({ alerts = [] }) {
               const categoryColor = categoryColors[alert.category] || 'bg-slate-100 text-slate-700';
 
               return (
-                <div
-                  key={alert.id}
-                  className={`bg-white rounded-xl shadow-sm border-l-4 p-6 transition-all hover:shadow-md ${config.bg} ${config.border}`}
-                >
+                  <div
+    key={alert.id}
+    className={`rounded-xl shadow-sm border-l-4 p-6 transition-all hover:shadow-md ${config.bg} ${config.border}`}
+  >
                   <div className="flex gap-4">
                     {/* Icon */}
                     <div className="mt-1 shrink-0">
@@ -260,9 +286,9 @@ export default function Alerts({ alerts = [] }) {
                         <h3 className="font-semibold text-slate-900 text-lg leading-tight">
                           {alert.title}
                         </h3>
-                        <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
+                        {/* <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
                           {formatDate(alert.date)}
-                        </span>
+                        </span> */}
                       </div>
 
                       <p className="text-slate-700 text-sm mb-3 leading-relaxed">
