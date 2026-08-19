@@ -39,7 +39,7 @@ export default function Login({ onNavigateSignup }) {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
-              DrugChain
+              Dhaara
             </h2>
 
             <p className="text-slate-500 text-sm">

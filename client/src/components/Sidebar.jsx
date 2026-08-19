@@ -10,6 +10,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import logo from "../assets/image.png";
 
 export default function Sidebar({
   activeTab,
@@ -85,11 +86,11 @@ export default function Sidebar({
           <div className="flex items-center gap-3 min-w-max">
 
             {/* Logo */}
-            <div className="w-9 h-9 shrink-0 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">
-                DC
-              </span>
-            </div>
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-9 h-9 shrink-0 object-contain rounded-lg"
+            />
 
             {/* Brand */}
             <motion.div
@@ -103,8 +104,8 @@ export default function Sidebar({
               }}
               className="whitespace-nowrap"
             >
-              <h1 className="text-xl font-bold tracking-tight">
-                DrugChain
+              <h1 className="text-2xl font-bold text-white tracking-tight mb-2">
+              Dhaara
               </h1>
 
               <p className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider font-semibold">
@@ -354,9 +355,9 @@ export default function Sidebar({
               </span>
             </div>
 
-            <span className="text-white font-bold">
-              DrugChain
-            </span>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
+              दवा<span className="text-green-800">AI</span>
+            </h2>
 
           </div>
 
@@ -449,9 +450,9 @@ export default function Sidebar({
                       </span>
                     </div>
 
-                    <span className="text-xl font-bold">
-                      DrugChain
-                    </span>
+                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
+              दवा<span className="text-green-800">AI</span>
+            </h2>
 
                   </div>
 
